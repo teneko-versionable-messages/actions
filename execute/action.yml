@@ -1,0 +1,64 @@
+name: Execute Vernuntii
+description: Executes Vernuntii
+
+inputs:
+  binary:
+    description: Binary to use Vernuntii
+    default: "vernuntii"
+    required: false
+  verbose:
+    description: Verbosity of Vernuntii.
+    default: "Fatal"
+    required: false
+  is-release:
+    description: True uses "--override-post-pre-release ''"
+    default: "false"
+    required: false
+  cache-id:
+    description: Uses "--cache-id <cache-id>"
+    default: ""
+    required: false
+  duplicate-version-fails:
+    description: Uses "--duplicate-version-fails"
+    default: "false"
+    required: false
+  env-prefix:
+    description: Prefix that is preprended to each environment variable
+    default: "Vernuntii_"
+    required: false
+
+runs:
+  using: composite
+  steps:
+    - id: args
+      run: |
+        [ ! -x "$(which ${{ inputs.binary }})" ] \
+        && echo "Binary '${{ inputs.binary }}' does not exist or is not executable" >&2 \
+        && exit 1
+
+        ARGS=('--verbose ${{ inputs.verbosity }}')
+        [ '${{ inputs.is-release }}' == 'true' ] && ARGS+=('--override-post-pre-release ""')
+        [ '${{ inputs.cache-id }}' != '' ] && ARGS+=('--cache-id "${{ inputs.cache-id }}"')
+        [ '${{ inputs.duplicate-version-fails }}' == 'true' ] && ARGS+=('--duplicate-version-fails')
+
+        echo "::set-output name=vernuntii-args::${ARGS[*]}"
+      shell: bash
+
+    - run: |
+        LINES=$(${{ inputs.binary }} \
+        ${{ steps.args.outputs.vernuntii-args }} \
+        --presentation-kind complex \
+        --presentation-parts all \
+        --presentation-view text)
+
+        LINE_INDEX=0
+        LINES_COUNT=$(echo "$LINES" | wc -l)
+
+        echo "$LINES" |
+        while IFS= read -r LINE
+        do
+        ((LINE_INDEX++)) || true
+        [[ $LINE_INDEX -eq $LINES_COUNT ]] && break
+        echo "${{ inputs.env-prefix }}$LINE" >> $GITHUB_ENV
+        done
+      shell: bash

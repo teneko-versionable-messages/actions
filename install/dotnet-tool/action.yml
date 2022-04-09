@@ -1,0 +1,30 @@
+name: Install Vernuntii dotnet tool
+description: Installs Vernuntii dotnet tool
+
+inputs:
+  version:
+    description: Use package version
+    default: ""
+    required: false
+  global:
+    description: Uses --global
+    default: "true"
+    required: false
+  add-source:
+    description: Uses --add-source
+    default: ""
+    required: false
+
+runs:
+  using: composite
+  steps:
+    - id: args
+      run: |
+        [ '${{ inputs.global }}' == 'true' ] && ARGS+=('--global')
+        [ '${{ inputs.add-source }}' != '' ] && ARGS+=('--add-source ${{ inputs.add-source }}')
+        [ '${{ inputs.version }}' != '' ] && ARGS+=('--version ${{ inputs.version }}')
+
+        echo "::set-output name=dotnet-tool-install-args::${ARGS[*]}"
+      shell: bash
+    - run: dotnet tool install Vernuntii.Console.GlobalTool ${{ steps.args.outputs.dotnet-tool-install-args }}
+      shell: bash
