@@ -1,5 +1,5 @@
 name: Install Vernuntii dotnet tool
-description: Installs Vernuntii dotnet tool
+description: Using this GitHub action makes the global command "vernuntii" available
 
 inputs:
   version:

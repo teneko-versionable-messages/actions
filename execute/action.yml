@@ -1,5 +1,5 @@
 name: Execute Vernuntii
-description: Executes Vernuntii
+description: Executes the "vernuntii"-binary
 
 inputs:
   binary:
@@ -9,6 +9,10 @@ inputs:
   verbose:
     description: Verbosity of Vernuntii.
     default: "Fatal"
+    required: false
+  config-path:
+    default: ""
+    description: "See console executable help for more informations"
     required: false
   is-release:
     description: True uses "--override-post-pre-release ''"
@@ -37,6 +41,7 @@ runs:
         && exit 1
 
         ARGS=('--verbose ${{ inputs.verbosity }}')
+        [ '${{ inputs.config-path }}' != '' ] && ARGS+=('--config-path "${{ inputs.config-path }}"')
         [ '${{ inputs.is-release }}' == 'true' ] && ARGS+=('--override-post-pre-release ""')
         [ '${{ inputs.cache-id }}' != '' ] && ARGS+=('--cache-id "${{ inputs.cache-id }}"')
         [ '${{ inputs.duplicate-version-fails }}' == 'true' ] && ARGS+=('--duplicate-version-fails')
