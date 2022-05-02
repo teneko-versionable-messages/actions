@@ -6,7 +6,7 @@ inputs:
     description: Binary to use Vernuntii
     default: "vernuntii"
     required: false
-  verbose:
+  verbosity:
     description: Verbosity of Vernuntii.
     default: "Fatal"
     required: false
@@ -40,7 +40,7 @@ runs:
         && echo "Binary '${{ inputs.binary }}' does not exist or is not executable" >&2 \
         && exit 1
 
-        ARGS=('--verbose ${{ inputs.verbosity }}')
+        ARGS=('--verbosity ${{ inputs.verbosity }}')
         [ '${{ inputs.config-path }}' != '' ] && ARGS+=('--config-path "${{ inputs.config-path }}"')
         [ '${{ inputs.is-release }}' == 'true' ] && ARGS+=('--override-post-pre-release ""')
         [ '${{ inputs.cache-id }}' != '' ] && ARGS+=('--cache-id "${{ inputs.cache-id }}"')

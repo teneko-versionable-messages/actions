@@ -12,7 +12,7 @@ inputs:
     default: CustomBeforeMicrosoftCommonProps
     description: MSBuild property name to populate with "Vernuntii"-.targets file location
     required: false
-  verbose:
+  verbosity:
     default: ""
     description: "See console executable help for more informations"
     required: false
@@ -53,7 +53,7 @@ runs:
         echo "VernuntiiConsoleExecutableFile=$(vernuntii location ConsoleDll)" >> $GITHUB_ENV
 
         # Further "Vernuntii"-.targets customizations
-        [ '${{ inputs.verbose }}' != '' ] && echo "VernuntiiVerbose=${{ inputs.verbose }}" >> $GITHUB_ENV
+        [ '${{ inputs.verbosity }}' != '' ] && echo "VernuntiiVerbosity=${{ inputs.verbosity }}" >> $GITHUB_ENV
         [ '${{ inputs.config-path }}' != '' ] && echo "VernuntiiConfigPath=${{ inputs.config-path }}" >> $GITHUB_ENV
         [ '${{ inputs.cache-id }}' != '' ] && echo "VernuntiiCacheId=${{ inputs.cache-id }}" >> $GITHUB_ENV
         [ '${{ inputs.cache-creation-retention-time }}' != '' ] && echo "VernuntiiCacheCreationRetentionTime=${{ inputs.cache-creation-retention-time }}" >> $GITHUB_ENV
