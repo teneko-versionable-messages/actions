@@ -56,14 +56,9 @@ runs:
         --presentation-parts all \
         --presentation-view text)
 
-        LINE_INDEX=0
-        LINES_COUNT=$(echo "$LINES" | wc -l)
-
         echo "$LINES" |
-        while IFS= read -r LINE
+        while read -r LINE
         do
-        ((LINE_INDEX++)) || true
-        [[ $LINE_INDEX -eq $LINES_COUNT ]] && break
         echo "${{ inputs.env-prefix }}$LINE" >> $GITHUB_ENV
         done
       shell: bash
