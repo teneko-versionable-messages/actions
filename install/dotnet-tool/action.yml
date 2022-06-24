@@ -14,10 +14,28 @@ inputs:
     description: Uses --add-source
     default: ""
     required: false
+  runtime:
+    description: The runtime or the package suffix (either linux-x64, win-x64 or osx-x64)
+    default: ""
+    required: false
 
 runs:
   using: composite
   steps:
+    - id: runtime
+      run: |
+        if ("${{ inputs.runtime }}" -ne "") {
+          Write-Host "::set-output name=value::${{ inputs.runtime }}"
+        } elseif ($IsLinux) {
+          Write-Host "::set-output name=value::linux-x64"
+        } elseif ($IsWindows) {
+          Write-Host "::set-output name=value::win-x64"
+        } elseif ($IsMacOS) {
+          Write-Host "::set-output name=value::osx-x64"
+        } else {
+          Write-Error "The platform Vernuntii is trying to be installed is not supported"
+        }
+      shell: pwsh
     - id: args
       run: |
         [ '${{ inputs.global }}' == 'true' ] && ARGS+=('--global')
@@ -26,5 +44,5 @@ runs:
 
         echo "::set-output name=dotnet-tool-install-args::${ARGS[*]}"
       shell: bash
-    - run: dotnet tool install Vernuntii.Console.GlobalTool ${{ steps.args.outputs.dotnet-tool-install-args }}
+    - run: dotnet tool install Vernuntii.Console.GlobalTool.${{ steps.runtime.outputs.value }} ${{ steps.args.outputs.dotnet-tool-install-args }}
       shell: bash
