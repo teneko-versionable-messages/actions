@@ -41,10 +41,10 @@ runs:
         && exit 1
 
         ARGS=('--verbosity ${{ inputs.verbosity }}')
-        [ '${{ inputs.config-path }}' != '' ] && ARGS+=('--config-path "${{ inputs.config-path }}"')
-        [ '${{ inputs.is-release }}' == 'true' ] && ARGS+=('--override-post-pre-release ""')
-        [ '${{ inputs.cache-id }}' != '' ] && ARGS+=('--cache-id "${{ inputs.cache-id }}"')
-        [ '${{ inputs.duplicate-version-fails }}' == 'true' ] && ARGS+=('--duplicate-version-fails')
+        [ '${{ inputs.config-path }}' != '' ] && ARGS+=(--config-path \"${{ inputs.config-path }}\")
+        [ '${{ inputs.is-release }}' == 'true' ] && ARGS+=(--override-post-pre-release \"\")
+        [ '${{ inputs.cache-id }}' != '' ] && ARGS+=(--cache-id \"${{ inputs.cache-id }}\")
+        [ '${{ inputs.duplicate-version-fails }}' == 'true' ] && ARGS+=(--duplicate-version-fails)
 
         echo "::set-output name=vernuntii-args::${ARGS[*]}"
       shell: bash

@@ -1,5 +1,8 @@
-name: Enable "Vernuntii" in subsequent MSBuild calls
-description: Enables "Vernuntii"-.targets file in subsequent calls of MSBuild
+name: Enable the Vernuntii MSBuild Integration system-wide in subsequent MSBuild calls
+
+description: |
+  Enables Vernuntii MSBuild Integration system-wide. That is achieved with the MSBuild
+  Integration targets file that gets automatically imported in subsequent MSBuild calls.
 
 inputs:
   binary:
@@ -36,6 +39,18 @@ inputs:
     default: ""
     description: "Indicates that the caches should be emptied where version informations are stored. This happens before the cache process itself"
     required: false
+  msbuild-integration-package-name:
+    default: "Vernuntii.Console.MSBuild.Orphan"
+    description: ""
+    required: false
+  msbuild-integration-package-version:
+    default: ""
+    description: ""
+    required: false
+  msbuild-integration-package-source:
+    default: ""
+    description: "Use this input when you want to define a custom NuGet-specific package source when the Vernuntii MSBuild integration is about to be downloaded"
+    required: false
 
 runs:
   using: composite
@@ -46,11 +61,23 @@ runs:
         && echo "Binary '${{ inputs.binary }}' does not exist or is not executable" >&2 \
         && exit 1
 
-        echo "${{ inputs.property }}=$(${{ inputs.binary }} location MSBuildTargets)" >> $GITHUB_ENV
-
         # Customizations for "Vernuntii"-.targets file
-        echo "VernuntiiAssemblyFile=$(vernuntii location MSBuildDll)" >> $GITHUB_ENV
-        echo "VernuntiiConsoleExecutableFile=$(vernuntii location ConsoleDll)" >> $GITHUB_ENV
+
+        VERNUNTII_BINARY=(${{ inputs.binary }})
+        [ '${{ inputs.verbosity }}' != '' ] && VERNUNTII_BINARY+=(--verbosity \"${{ inputs.verbosity }}\")
+        VERNUNTII_BINARY="${VERNUNTII_BINARY[*]}"
+
+        echo \"${{ inputs.msbuild-integration-package-source }}\"
+
+        VERNUNTII_MSBUILD_LOCATE_ARGS=("--download-package")
+        [ '${{ inputs.msbuild-integration-package-name }}' != '' ] && VERNUNTII_MSBUILD_LOCATE_ARGS+=(--package-name \"${{ inputs.msbuild-integration-package-name }}\")
+        [ '${{ inputs.msbuild-integration-package-version }}' != '' ] && VERNUNTII_MSBUILD_LOCATE_ARGS+=(--package-version \"${{ inputs.msbuild-integration-package-version }}\")
+        [ '${{ inputs.msbuild-integration-package-source }}' != '' ] && VERNUNTII_MSBUILD_LOCATE_ARGS+=(--package-source '"${{ inputs.msbuild-integration-package-source }}"')
+        VERNUNTII_MSBUILD_LOCATE_ARGS="${VERNUNTII_MSBUILD_LOCATE_ARGS[*]}"
+
+        echo "${{ inputs.property }}="$(eval $VERNUNTII_BINARY msbuild-integration locate AutoImportTargets $VERNUNTII_MSBUILD_LOCATE_ARGS) >> $GITHUB_ENV
+        # echo "VernuntiiMSBuildIntegrationAssemblyFile="$(eval $VERNUNTII_BINARY msbuild-integration locate MSBuildTaskDll $VERNUNTII_MSBUILD_LOCATE_ARGS) >> $GITHUB_ENV
+        echo "VernuntiiConsoleExecutableFile="$(eval $VERNUNTII_BINARY locate ConsoleDll) >> $GITHUB_ENV
 
         # Further "Vernuntii"-.targets customizations
         [ '${{ inputs.verbosity }}' != '' ] && echo "VernuntiiVerbosity=${{ inputs.verbosity }}" >> $GITHUB_ENV
@@ -61,4 +88,5 @@ runs:
         [ '${{ inputs.empty-caches }}' != '' ] && echo "VernuntiiEmptyCaches=${{ inputs.empty-caches }}" >> $GITHUB_ENV
 
         exit 0
+
       shell: bash

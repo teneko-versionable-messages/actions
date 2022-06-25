@@ -39,8 +39,8 @@ runs:
     - id: args
       run: |
         [ '${{ inputs.global }}' == 'true' ] && ARGS+=('--global')
-        [ '${{ inputs.add-source }}' != '' ] && ARGS+=('--add-source ${{ inputs.add-source }}')
-        [ '${{ inputs.version }}' != '' ] && ARGS+=('--version ${{ inputs.version }}')
+        [ '${{ inputs.add-source }}' != '' ] && ARGS+=('--add-source "${{ inputs.add-source }}"')
+        [ '${{ inputs.version }}' != '' ] && ARGS+=('--version "${{ inputs.version }}"')
 
         echo "::set-output name=dotnet-tool-install-args::${ARGS[*]}"
       shell: bash
