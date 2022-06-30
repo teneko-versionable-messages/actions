@@ -75,17 +75,21 @@ runs:
         [ '${{ inputs.msbuild-integration-package-source }}' != '' ] && VERNUNTII_MSBUILD_LOCATE_ARGS+=(--package-source '"${{ inputs.msbuild-integration-package-source }}"')
         VERNUNTII_MSBUILD_LOCATE_ARGS="${VERNUNTII_MSBUILD_LOCATE_ARGS[*]}"
 
-        echo "${{ inputs.property }}="$(eval $VERNUNTII_BINARY msbuild-integration locate AutoImportTargets $VERNUNTII_MSBUILD_LOCATE_ARGS) >> $GITHUB_ENV
-        # echo "VernuntiiMSBuildIntegrationAssemblyFile="$(eval $VERNUNTII_BINARY msbuild-integration locate MSBuildTaskDll $VERNUNTII_MSBUILD_LOCATE_ARGS) >> $GITHUB_ENV
-        echo "VernuntiiConsoleExecutableFile="$(eval $VERNUNTII_BINARY locate ConsoleDll) >> $GITHUB_ENV
+        write_github_env() {
+          echo "$1=$2" >> $GITHUB_ENV
+        }
+
+        write_github_env "${{ inputs.property }}" "$(eval $VERNUNTII_BINARY msbuild-integration locate AutoImportTargets $VERNUNTII_MSBUILD_LOCATE_ARGS)"
+        write_github_env VernuntiiMSBuildIntegrationAssemblyFile "$(eval $VERNUNTII_BINARY msbuild-integration locate MSBuildTaskDll $VERNUNTII_MSBUILD_LOCATE_ARGS)"
+        write_github_env VernuntiiConsoleExecutableFile "$(eval $VERNUNTII_BINARY locate ConsoleDll)"
 
         # Further "Vernuntii"-.targets customizations
-        [ '${{ inputs.verbosity }}' != '' ] && echo "VernuntiiVerbosity=${{ inputs.verbosity }}" >> $GITHUB_ENV
-        [ '${{ inputs.config-path }}' != '' ] && echo "VernuntiiConfigPath=${{ inputs.config-path }}" >> $GITHUB_ENV
-        [ '${{ inputs.cache-id }}' != '' ] && echo "VernuntiiCacheId=${{ inputs.cache-id }}" >> $GITHUB_ENV
-        [ '${{ inputs.cache-creation-retention-time }}' != '' ] && echo "VernuntiiCacheCreationRetentionTime=${{ inputs.cache-creation-retention-time }}" >> $GITHUB_ENV
-        [ '${{ inputs.cache-last-access-retention-time }}' != '' ] && echo "VernuntiiCacheLastAccessRetentionTime=${{ inputs.cache-last-access-retention-time }}" >> $GITHUB_ENV
-        [ '${{ inputs.empty-caches }}' != '' ] && echo "VernuntiiEmptyCaches=${{ inputs.empty-caches }}" >> $GITHUB_ENV
+        [ '${{ inputs.verbosity }}' != '' ] && write_github_env VernuntiiVerbosity "${{ inputs.verbosity }}"
+        [ '${{ inputs.config-path }}' != '' ] && write_github_env VernuntiiConfigPath "${{ inputs.config-path }}"
+        [ '${{ inputs.cache-id }}' != '' ] && write_github_env VernuntiiCacheId "${{ inputs.cache-id }}"
+        [ '${{ inputs.cache-creation-retention-time }}' != '' ] && write_github_env VernuntiiCacheCreationRetentionTime "${{ inputs.cache-creation-retention-time }}"
+        [ '${{ inputs.cache-last-access-retention-time }}' != '' ] && write_github_env VernuntiiCacheLastAccessRetentionTime "${{ inputs.cache-last-access-retention-time }}"
+        [ '${{ inputs.empty-caches }}' != '' ] && echo VernuntiiEmptyCaches "${{ inputs.empty-caches }}"
 
         exit 0
 
